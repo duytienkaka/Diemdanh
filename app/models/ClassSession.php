@@ -262,4 +262,25 @@ class ClassSession
 
         return $stmt->fetchAll();
     }
+    public static function getSessionsForDate(string $date): array
+    {
+        $pdo = Database::getInstance();
+
+        $sql = "
+        SELECT cs.*,
+               s.code AS subject_code,
+               s.name AS subject_name,
+               sem.name AS semester_name
+        FROM class_sessions cs
+        JOIN subjects  s   ON s.id   = cs.subject_id
+        JOIN semesters sem ON sem.id = cs.semester_id
+        WHERE cs.session_date = :session_date
+        ORDER BY cs.start_time ASC
+    ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':session_date' => $date]);
+
+        return $stmt->fetchAll();
+    }
 }

@@ -2,15 +2,17 @@
 
 class AttendanceController extends Controller
 {
-    // 🔹 Điểm danh buổi học hôm nay cho Lớp trưởng
     public function today()
     {
         $this->requireRole(['monitor']);
 
-        // Lấy danh sách các buổi học hôm nay
-        $sessions = ClassSession::getTodaySessions();
-        $message  = null;
-        $errors   = [];
+        // Lấy "hôm nay" theo múi giờ Việt Nam
+        $now   = new DateTimeImmutable('now', new DateTimeZone('Asia/Ho_Chi_Minh'));
+        $today = $now->format('Y-m-d');
+
+        $message = null;
+        $errors  = [];
+        $sessions = ClassSession::getSessionsForDate($today);
 
         if (empty($sessions)) {
             // Không có buổi học nào hôm nay
@@ -25,9 +27,11 @@ class AttendanceController extends Controller
         }
 
         // Chọn buổi theo GET ?session_id=..., nếu không có thì lấy buổi đầu tiên
-        $selectedSessionId = isset($_GET['session_id']) ? (int)$_GET['session_id'] : (int)$sessions[0]['id'];
-        $selectedSession   = null;
+        $selectedSessionId = isset($_GET['session_id'])
+            ? (int)$_GET['session_id']
+            : (int)$sessions[0]['id'];
 
+        $selectedSession = null;
         foreach ($sessions as $ses) {
             if ((int)$ses['id'] === $selectedSessionId) {
                 $selectedSession = $ses;
@@ -61,7 +65,7 @@ class AttendanceController extends Controller
             if ($sessionIdPost <= 0 || !$selectedSession) {
                 $errors[] = 'Buổi học không hợp lệ khi lưu điểm danh.';
             } else {
-                // Không cho điểm danh nếu buổi đã kết thúc
+                // (Tuỳ bạn: sau này có thể thay bằng kiểm tra theo thời gian thực thay vì dùng status DB)
                 if ($selectedSession['status'] === 'ended') {
                     $errors[] = 'Buổi học đã kết thúc, không thể điểm danh.';
                 } else {
@@ -76,7 +80,11 @@ class AttendanceController extends Controller
                         ClassSession::markAttendanceDone($sessionIdPost);
 
                         $message = 'Đã lưu điểm danh thành công.';
-                        $this->redirect('index.php?controller=monitor_attendance&action=today&session_id=' . $sessionIdPost);
+
+                        // PRG: redirect để tránh F5 gửi lại form
+                        $this->redirect(
+                            'index.php?controller=monitor_attendance&action=today&session_id=' . $sessionIdPost
+                        );
                     } catch (Exception $e) {
                         $errors[] = 'Lỗi khi lưu điểm danh: ' . $e->getMessage();
                     }
@@ -99,6 +107,7 @@ class AttendanceController extends Controller
             'errors'          => $errors,
         ], 'main');
     }
+
     public function history()
     {
         $this->requireRole(['monitor']);

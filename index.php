@@ -1,12 +1,17 @@
 <?php
-// index.php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+date_default_timezone_set('Asia/Ho_Chi_Minh');
+
 session_start();
+
 
 require_once __DIR__ . '/app/config/config.php';
 require_once __DIR__ . '/app/core/Database.php';
 require_once __DIR__ . '/app/core/Controller.php';
 
-// Autoload đơn giản
 spl_autoload_register(function ($class) {
     $paths = [
         __DIR__ . '/app/controllers/' . $class . '.php',
