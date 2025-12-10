@@ -192,29 +192,52 @@ class ClassSession
             ':created_by'   => $createdBy,
         ]);
     }
-    // Tự động cập nhật status dựa trên thời gian hiện tại
-    public static function autoUpdateStatuses(): void
-    {
-        $pdo = Database::getInstance();
+public static function autoUpdateStatuses(): void
+{
+    $pdo = Database::getInstance();
 
-        // status = scheduled -> ongoing nếu đang trong khoảng giờ học hôm nay
-        $sql1 = "UPDATE class_sessions
-                 SET status = 'ongoing'
-                 WHERE status = 'scheduled'
-                   AND session_date = CURDATE()
-                   AND TIME(NOW()) BETWEEN start_time AND end_time";
-        $pdo->exec($sql1);
+    // Lấy "bây giờ" theo giờ Việt Nam
+    $now   = new DateTimeImmutable('now', new DateTimeZone('Asia/Ho_Chi_Minh'));
+    $today = $now->format('Y-m-d');
+    $time  = $now->format('H:i:s');
 
-        // status = scheduled hoặc ongoing -> ended nếu đã qua giờ kết thúc hôm nay hoặc ngày quá khứ
-        $sql2 = "UPDATE class_sessions
-                 SET status = 'ended'
-                 WHERE status IN ('scheduled', 'ongoing')
-                   AND (
-                        session_date < CURDATE()
-                        OR (session_date = CURDATE() AND TIME(NOW()) > end_time)
-                   )";
-        $pdo->exec($sql2);
-    }
+    // 1) status = scheduled -> ongoing nếu hôm nay & đang trong khoảng giờ học
+    $sql1 = "UPDATE class_sessions
+             SET status = 'ongoing'
+             WHERE status = 'scheduled'
+               AND session_date = :today
+               AND start_time <= :time
+               AND end_time   >  :time";
+    $stmt1 = $pdo->prepare($sql1);
+    $stmt1->execute([
+        ':today' => $today,
+        ':time'  => $time,
+    ]);
+
+    // 2) status = scheduled/ongoing -> ended nếu ngày < hôm nay
+    $sql2 = "UPDATE class_sessions
+             SET status = 'ended'
+             WHERE status IN ('scheduled', 'ongoing')
+               AND session_date < :today";
+    $stmt2 = $pdo->prepare($sql2);
+    $stmt2->execute([
+        ':today' => $today,
+    ]);
+
+    // 3) status = scheduled/ongoing -> ended nếu hôm nay nhưng đã qua giờ kết thúc
+    $sql3 = "UPDATE class_sessions
+             SET status = 'ended'
+             WHERE status IN ('scheduled', 'ongoing')
+               AND session_date = :today
+               AND end_time <= :time";
+    $stmt3 = $pdo->prepare($sql3);
+    $stmt3->execute([
+        ':today' => $today,
+        ':time'  => $time,
+    ]);
+}
+
+
     // Lấy thông tin 1 buổi học (kèm môn + học kỳ)
     public static function findWithInfo(int $id): ?array
     {

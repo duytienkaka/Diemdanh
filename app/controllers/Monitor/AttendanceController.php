@@ -10,12 +10,19 @@ class AttendanceController extends Controller
         $now   = new DateTimeImmutable('now', new DateTimeZone('Asia/Ho_Chi_Minh'));
         $today = $now->format('Y-m-d');
 
+        // Lấy danh sách các buổi học NGÀY HÔM NAY
+        // (gợi ý: bạn nên dùng ClassSession::getSessionsForDate($today) như mình đã nói)
+        if (method_exists('ClassSession', 'getSessionsForDate')) {
+            $sessions = ClassSession::getSessionsForDate($today);
+        } else {
+            // fallback: vẫn dùng hàm cũ nếu bạn chưa tạo getSessionsForDate
+            $sessions = ClassSession::getTodaySessions();
+        }
+
         $message = null;
         $errors  = [];
-        $sessions = ClassSession::getSessionsForDate($today);
 
         if (empty($sessions)) {
-            // Không có buổi học nào hôm nay
             $this->view('monitor/attendance/today', [
                 'sessions'        => [],
                 'selectedSession' => null,
@@ -45,6 +52,33 @@ class AttendanceController extends Controller
             $selectedSessionId = (int)$sessions[0]['id'];
         }
 
+        // 👉 TÍNH TRẠNG THÁI THỰC TẾ (DỰA THEO GIỜ) CHO BUỔI ĐANG CHỌN
+        $time  = $now->format('H:i:s');
+        $start = $selectedSession['start_time'];
+        $end   = $selectedSession['end_time'];
+
+        // Nếu end_time <= start_time (trường hợp nhập 00:00) thì coi như kết thúc 23:59:59
+        if ($end <= $start) {
+            $end = '23:59:59';
+        }
+
+        $effectiveStatus = $selectedSession['status'];
+
+        if ($selectedSession['session_date'] < $today) {
+            $effectiveStatus = 'ended';
+        } elseif ($selectedSession['session_date'] > $today) {
+            $effectiveStatus = 'scheduled';
+        } else {
+            // Hôm nay
+            if ($time < $start) {
+                $effectiveStatus = 'scheduled'; // CHƯA ĐẾN GIỜ
+            } elseif ($time >= $start && $time < $end) {
+                $effectiveStatus = 'ongoing';   // ĐANG DIỄN RA
+            } else {
+                $effectiveStatus = 'ended';     // ĐÃ QUA GIỜ
+            }
+        }
+
         // Nếu POST -> lưu điểm danh
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $sessionIdPost = (int)($_POST['session_id'] ?? 0);
@@ -65,23 +99,44 @@ class AttendanceController extends Controller
             if ($sessionIdPost <= 0 || !$selectedSession) {
                 $errors[] = 'Buổi học không hợp lệ khi lưu điểm danh.';
             } else {
-                // (Tuỳ bạn: sau này có thể thay bằng kiểm tra theo thời gian thực thay vì dùng status DB)
-                if ($selectedSession['status'] === 'ended') {
-                    $errors[] = 'Buổi học đã kết thúc, không thể điểm danh.';
+                // 👉 TÍNH LẠI TRẠNG THÁI THỰC TẾ CHO BUỔI ĐƯỢC POST
+                $time  = $now->format('H:i:s');
+                $start = $selectedSession['start_time'];
+                $end   = $selectedSession['end_time'];
+                if ($end <= $start) {
+                    $end = '23:59:59';
+                }
+
+                $effectiveStatus = $selectedSession['status'];
+                if ($selectedSession['session_date'] < $today) {
+                    $effectiveStatus = 'ended';
+                } elseif ($selectedSession['session_date'] > $today) {
+                    $effectiveStatus = 'scheduled';
                 } else {
+                    if ($time < $start) {
+                        $effectiveStatus = 'scheduled';
+                    } elseif ($time >= $start && $time < $end) {
+                        $effectiveStatus = 'ongoing';
+                    } else {
+                        $effectiveStatus = 'ended';
+                    }
+                }
+
+                // ❌ CHẶN MỌI TRƯỜNG HỢP NGOÀI GIỜ (CẢ CHƯA ĐẾN GIỜ VÀ ĐÃ QUA GIỜ)
+                if ($effectiveStatus !== 'ongoing') {
+                    if ($effectiveStatus === 'scheduled') {
+                        $errors[] = 'Chưa đến giờ học, không thể điểm danh.';
+                    } else {
+                        $errors[] = 'Buổi học đã kết thúc, không thể điểm danh.';
+                    }
+                } else {
+                    // ✅ CHỈ TRONG KHOẢNG GIỜ HỌC MỚI ĐƯỢC LƯU
                     try {
-                        // Đảm bảo đã có record mặc định cho tất cả sinh viên
                         AttendanceRecord::ensureForSession($sessionIdPost);
-
-                        // Cập nhật vắng / có mặt
                         AttendanceRecord::updateForSession($sessionIdPost, $absentIds, $_SESSION['user_id']);
-
-                        // Đánh dấu buổi học này đã điểm danh xong
                         ClassSession::markAttendanceDone($sessionIdPost);
 
                         $message = 'Đã lưu điểm danh thành công.';
-
-                        // PRG: redirect để tránh F5 gửi lại form
                         $this->redirect(
                             'index.php?controller=monitor_attendance&action=today&session_id=' . $sessionIdPost
                         );
@@ -107,7 +162,6 @@ class AttendanceController extends Controller
             'errors'          => $errors,
         ], 'main');
     }
-
     public function history()
     {
         $this->requireRole(['monitor']);

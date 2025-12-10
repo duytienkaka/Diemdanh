@@ -1,10 +1,10 @@
 <?php
 // app/config/config.php
 
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'attendance_app');
-define('DB_USER', 'root');
-define('DB_PASS', ''); // khi lên InfinityFree sẽ sửa thành user + password host cung cấp
+define('DB_HOST', 'sql104.infinityfree.com');
+define('DB_NAME', 'if0_40578862_qldiemdanh');
+define('DB_USER', 'if0_40578862');
+define('DB_PASS', 'ThaoVan1008');
 
 // Tự động nhận BASE_URL dựa trên domain hiện tại
 $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
