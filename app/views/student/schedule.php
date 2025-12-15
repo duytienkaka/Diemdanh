@@ -23,12 +23,12 @@
                     <div class="date-month"><?= date('M', strtotime($s['session_date'])) ?></div>
                 </div>
                 <div class="schedule-content">
-                    <h3><?= htmlspecialchars($s['subject_code']) ?></h3>
-                    <p class="schedule-title"><?= htmlspecialchars($s['subject_name']) ?></p>
+                    <h3><?= htmlspecialchars($s['subject_code'] ?? '') ?></h3>
+                    <p class="schedule-title"><?= htmlspecialchars($s['subject_name'] ?? '') ?></p>
                     <div class="schedule-details">
                         <div class="detail-item">
                             <i class="fas fa-clock"></i>
-                            <?= htmlspecialchars($s['start_time']) ?> - <?= htmlspecialchars($s['end_time']) ?>
+                            <?= htmlspecialchars($s['start_time'] ?? '') ?> - <?= htmlspecialchars($s['end_time'] ?? '') ?>
                         </div>
                         <div class="detail-item">
                             <i class="fas fa-door-open"></i>
@@ -36,7 +36,7 @@
                         </div>
                         <div class="detail-item">
                             <i class="fas fa-layer-group"></i>
-                            <?= htmlspecialchars($s['semester_name']) ?>
+                            <?= htmlspecialchars($s['semester_name'] ?? '') ?>
                         </div>
                     </div>
                     <div class="schedule-tags">
@@ -77,9 +77,9 @@
             <?php foreach ($sessions as $s): ?>
                 <tr>
                     <td><strong><?= date('d/m/Y', strtotime($s['session_date'])) ?></strong></td>
-                    <td><?= htmlspecialchars($s['start_time']) ?> - <?= htmlspecialchars($s['end_time']) ?></td>
-                    <td><?= htmlspecialchars($s['subject_code']) ?> - <?= htmlspecialchars($s['subject_name']) ?></td>
-                    <td><?= htmlspecialchars($s['semester_name']) ?></td>
+                    <td><?= htmlspecialchars($s['start_time'] ?? '') ?> - <?= htmlspecialchars($s['end_time'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($s['subject_code'] ?? '') ?> - <?= htmlspecialchars($s['subject_name'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($s['semester_name'] ?? '') ?></td>
                     <td><?= htmlspecialchars($s['room'] ?? '-') ?></td>
                     <td>
                         <?php if ($s['is_makeup']): ?>

@@ -1,9 +1,36 @@
 <div class="page-header">
     <h1><i class="fas fa-file-chart-line"></i> Chi tiết vắng học</h1>
     <p class="page-description">
-        Sinh viên: <strong><?= htmlspecialchars($student['student_code']) ?> - <?= htmlspecialchars($student['full_name']) ?></strong>
+        Sinh viên: <strong><?= htmlspecialchars($student['student_code'] ?? '') ?> - <?= htmlspecialchars($student['full_name'] ?? '') ?></strong>
     </p>
 </div>
+
+<div style="margin-bottom: 14px; display:flex; gap:12px; align-items:center;">
+    <form method="get" style="display:flex; gap:8px; align-items:center;">
+        <input type="hidden" name="controller" value="admin_report">
+        <input type="hidden" name="action" value="studentDetail">
+        <input type="hidden" name="id" value="<?= intval($student['id']) ?>">
+        <label style="font-size:13px;">Từ:</label>
+        <input type="date" name="start_date" value="<?= htmlspecialchars($start_date ?? '') ?>">
+        <label style="font-size:13px;">Đến:</label>
+        <input type="date" name="end_date" value="<?= htmlspecialchars($end_date ?? '') ?>">
+        <div class="filter-actions">
+            <button class="btn btn-primary" type="submit"><i class="fas fa-filter"></i> Lọc</button>
+            <a class="btn btn-ghost" href="<?= BASE_URL ?>index.php?controller=admin_report&action=studentDetail&id=<?= intval($student['id']) ?>"><i class="fas fa-eraser"></i> Bỏ lọc</a>
+        </div>
+    </form>
+    <div style="margin-left:auto;">
+        <a href="<?= BASE_URL ?>index.php?controller=admin_report&action=index" class="button">Quay về</a>
+    </div>
+</div>
+
+<?php if (!empty($start_date) || !empty($end_date)): ?>
+    <div style="margin-bottom:12px; color:#374151; font-size:13px;">
+        Lọc: 
+        <?php if (!empty($start_date)): ?>Từ <strong><?= htmlspecialchars($start_date ?? '') ?></strong><?php endif; ?>
+        <?php if (!empty($end_date)): ?> Đến <strong><?= htmlspecialchars($end_date ?? '') ?></strong><?php endif; ?>
+    </div>
+<?php endif; ?>
 
 <?php if (empty($records)): ?>
     <div class="empty-state">
@@ -36,9 +63,9 @@
             <?php foreach ($records as $r): ?>
                 <tr>
                     <td><strong><?= date('d/m/Y', strtotime($r['session_date'])) ?></strong></td>
-                    <td><?= htmlspecialchars($r['start_time']) ?> - <?= htmlspecialchars($r['end_time']) ?></td>
-                    <td><?= htmlspecialchars($r['subject_code']) ?> - <?= htmlspecialchars($r['subject_name']) ?></td>
-                    <td><?= htmlspecialchars($r['semester_name']) ?></td>
+                    <td><?= htmlspecialchars($r['start_time'] ?? '') ?> - <?= htmlspecialchars($r['end_time'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($r['subject_code'] ?? '') ?> - <?= htmlspecialchars($r['subject_name'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($r['semester_name'] ?? '') ?></td>
                     <td>
                         <?php if ($r['is_makeup']): ?>
                             <span style="background: #fef3c7; color: #b45309; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">

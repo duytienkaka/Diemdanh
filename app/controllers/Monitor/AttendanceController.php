@@ -82,7 +82,7 @@ class AttendanceController extends Controller
         // Nếu POST -> lưu điểm danh
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $sessionIdPost = (int)($_POST['session_id'] ?? 0);
-            $absentIds     = $_POST['absent_ids'] ?? [];
+            $statuses      = $_POST['status'] ?? []; // dạng: [student_id => present|late|truant|absent]
 
             // Đồng bộ selectedSessionId với POST
             $selectedSessionId = $sessionIdPost;
@@ -103,11 +103,11 @@ class AttendanceController extends Controller
                 $time  = $now->format('H:i:s');
                 $start = $selectedSession['start_time'];
                 $end   = $selectedSession['end_time'];
+
                 if ($end <= $start) {
                     $end = '23:59:59';
                 }
 
-                $effectiveStatus = $selectedSession['status'];
                 if ($selectedSession['session_date'] < $today) {
                     $effectiveStatus = 'ended';
                 } elseif ($selectedSession['session_date'] > $today) {
@@ -122,24 +122,22 @@ class AttendanceController extends Controller
                     }
                 }
 
-                // ❌ CHẶN MỌI TRƯỜNG HỢP NGOÀI GIỜ (CẢ CHƯA ĐẾN GIỜ VÀ ĐÃ QUA GIỜ)
+                // ❌ CHẶN NGOÀI GIỜ (CHƯA ĐẾN GIỜ / ĐÃ QUA GIỜ)
                 if ($effectiveStatus !== 'ongoing') {
-                    if ($effectiveStatus === 'scheduled') {
-                        $errors[] = 'Chưa đến giờ học, không thể điểm danh.';
-                    } else {
-                        $errors[] = 'Buổi học đã kết thúc, không thể điểm danh.';
-                    }
+                    $errors[] = ($effectiveStatus === 'scheduled')
+                        ? 'Chưa đến giờ học, không thể điểm danh.'
+                        : 'Buổi học đã kết thúc, không thể điểm danh.';
                 } else {
-                    // ✅ CHỈ TRONG KHOẢNG GIỜ HỌC MỚI ĐƯỢC LƯU
                     try {
                         AttendanceRecord::ensureForSession($sessionIdPost);
-                        AttendanceRecord::updateForSession($sessionIdPost, $absentIds, $_SESSION['user_id']);
+
+                        // ✅ NEW: cập nhật theo 4 trạng thái
+                        AttendanceRecord::updateForSession($sessionIdPost, $statuses, (int)$_SESSION['user_id']);
+
                         ClassSession::markAttendanceDone($sessionIdPost);
 
                         $message = 'Đã lưu điểm danh thành công.';
-                        $this->redirect(
-                            'index.php?controller=monitor_attendance&action=today&session_id=' . $sessionIdPost
-                        );
+                        $this->redirect('index.php?controller=monitor_attendance&action=today&session_id=' . $sessionIdPost);
                     } catch (Exception $e) {
                         $errors[] = 'Lỗi khi lưu điểm danh: ' . $e->getMessage();
                     }
@@ -147,7 +145,6 @@ class AttendanceController extends Controller
             }
         }
 
-        // Lấy danh sách điểm danh của buổi đã chọn
         $attendanceList = [];
         if ($selectedSessionId) {
             AttendanceRecord::ensureForSession($selectedSessionId);

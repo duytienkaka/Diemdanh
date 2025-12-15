@@ -69,9 +69,9 @@
             ?>
             <tr>
                 <td><strong><?= date('d/m/Y', strtotime($s['session_date'])) ?></strong></td>
-                <td><?= htmlspecialchars($s['start_time']) ?> - <?= htmlspecialchars($s['end_time']) ?></td>
-                <td><?= htmlspecialchars($s['subject_code']) ?> - <?= htmlspecialchars($s['subject_name']) ?></td>
-                <td><?= htmlspecialchars($s['semester_name']) ?></td>
+                <td><?= htmlspecialchars($s['start_time'] ?? '') ?> - <?= htmlspecialchars($s['end_time'] ?? '') ?></td>
+                <td><?= htmlspecialchars($s['subject_code'] ?? '') ?> - <?= htmlspecialchars($s['subject_name'] ?? '') ?></td>
+                <td><?= htmlspecialchars($s['semester_name'] ?? '') ?></td>
                 <td>
                     <?php if ($s['is_makeup']): ?>
                         <span class="badge badge-warning"><i class="fas fa-sync"></i> Buổi bù</span>

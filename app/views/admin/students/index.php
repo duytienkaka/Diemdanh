@@ -34,11 +34,11 @@
             <tbody>
                 <?php foreach ($students as $st): ?>
                     <tr>
-                        <td><strong><?= htmlspecialchars($st['student_code']) ?></strong></td>
-                        <td><?= htmlspecialchars($st['full_name']) ?></td>
+                        <td><strong><?= htmlspecialchars($st['student_code'] ?? '') ?></strong></td>
+                        <td><?= htmlspecialchars($st['full_name'] ?? '') ?></td>
                         <td><?= htmlspecialchars($st['gender'] ?? '')?></td>
                         <td><?= htmlspecialchars($st['phone'] ?? '') ?></td>
-                        <td><code style="background: #f3f4f6; padding: 2px 6px; border-radius: 4px;"><?= htmlspecialchars($st['username']) ?></code></td>
+                        <td><code style="background: #f3f4f6; padding: 2px 6px; border-radius: 4px;"><?= htmlspecialchars($st['username'] ?? '') ?></code></td>
                         <td>
                             <?php if ($st['is_monitor']): ?>
                                 <span class="badge badge-warning"><i class="fas fa-star"></i> Lớp trưởng</span>

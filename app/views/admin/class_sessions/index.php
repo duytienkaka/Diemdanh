@@ -18,7 +18,7 @@
                     <option value="">-- Tất cả --</option>
                     <?php foreach ($semesters as $sem): ?>
                         <option value="<?= $sem['id'] ?>" <?= ($semesterId == $sem['id']) ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($sem['name']) ?>
+                            <?= htmlspecialchars($sem['name'] ?? '') ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -30,7 +30,7 @@
                     <option value="">-- Tất cả --</option>
                     <?php foreach ($subjects as $sub): ?>
                         <option value="<?= $sub['id'] ?>" <?= ($subjectId == $sub['id']) ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($sub['code']) ?> - <?= htmlspecialchars($sub['name']) ?>
+                            <?= htmlspecialchars($sub['code'] ?? '') ?> - <?= htmlspecialchars($sub['name'] ?? '') ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -109,9 +109,9 @@
                     <tr>
                         <td><?= $s['id'] ?></td>
                         <td><?= htmlspecialchars($s['semester_name'] ?? '-') ?></td>
-                        <td><?= htmlspecialchars($s['subject_code']) ?> - <?= htmlspecialchars($s['subject_name']) ?></td>
+                        <td><?= htmlspecialchars($s['subject_code'] ?? '') ?> - <?= htmlspecialchars($s['subject_name'] ?? '') ?></td>
                         <td><?= date('d/m/Y', strtotime($s['session_date'])) ?></td>
-                        <td><?= htmlspecialchars($s['start_time']) ?> - <?= htmlspecialchars($s['end_time']) ?></td>
+                        <td><?= htmlspecialchars($s['start_time'] ?? '') ?> - <?= htmlspecialchars($s['end_time'] ?? '') ?></td>
                         <td><?= htmlspecialchars($s['room'] ?? '-') ?></td>
                         <td>
                             <?php if ($s['is_makeup']): ?>

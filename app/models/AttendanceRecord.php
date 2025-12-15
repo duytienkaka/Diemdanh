@@ -40,8 +40,6 @@ class AttendanceRecord
             }
         }
     }
-
-    // Lấy danh sách điểm danh của 1 buổi (kèm tên sinh viên)
     public static function getBySession(int $sessionId): array
     {
         $pdo = Database::getInstance();
@@ -56,52 +54,37 @@ class AttendanceRecord
         return $stmt->fetchAll();
     }
 
-    // Cập nhật trạng thái điểm danh cho buổi học
-    // absentIds = danh sách student_id bị vắng, còn lại coi là present
-    public static function updateForSession(int $sessionId, array $absentIds, int $markedBy): void
+    public static function updateForSession(int $sessionId, array $statuses, int $markedBy): void
     {
         $pdo = Database::getInstance();
+
+        $allowed = ['present', 'late', 'truant', 'absent'];
+        $stmt = $pdo->prepare("SELECT student_id FROM attendance_records WHERE session_id = :sid");
+        $stmt->execute([':sid' => $sessionId]);
+        $studentIds = array_column($stmt->fetchAll(), 'student_id');
+
         $pdo->beginTransaction();
-
         try {
-            // Set tất cả về present
-            $stmtPresent = $pdo->prepare("
-                UPDATE attendance_records
-                SET status = 'present', marked_by = :marked_by, marked_at = NOW()
-                WHERE class_session_id = :sid
-            ");
-            $stmtPresent->execute([
-                ':marked_by' => $markedBy,
-                ':sid'       => $sessionId,
-            ]);
+            $upd = $pdo->prepare("
+            UPDATE attendance_records
+            SET status = :status, marked_by = :marked_by, updated_at = NOW()
+            WHERE session_id = :session_id AND student_id = :student_id
+        ");
 
-            // Với những bạn vắng -> absent
-            if (!empty($absentIds)) {
-                // Chuyển absentIds thành int đảm bảo an toàn
-                $absentIds = array_map('intval', $absentIds);
+            foreach ($studentIds as $stId) {
+                $stId = (int)$stId;
+                $stStatus = $statuses[$stId] ?? 'present';
 
-                // Tạo list placeholder (:id0, :id1, ...)
-                $placeholders = [];
-                $params = [
-                    ':sid'       => $sessionId,
-                    ':marked_by' => $markedBy,
-                ];
-
-                foreach ($absentIds as $index => $id) {
-                    $key = ':id' . $index;
-                    $placeholders[] = $key;
-                    $params[$key] = $id;
+                if (!in_array($stStatus, $allowed, true)) {
+                    $stStatus = 'present';
                 }
 
-                $sql = "
-                    UPDATE attendance_records
-                    SET status = 'absent', marked_by = :marked_by, marked_at = NOW()
-                    WHERE class_session_id = :sid
-                      AND student_id IN (" . implode(',', $placeholders) . ")
-                ";
-
-                $stmtAbsent = $pdo->prepare($sql);
-                $stmtAbsent->execute($params);
+                $upd->execute([
+                    ':status'     => $stStatus,
+                    ':marked_by'  => $markedBy,
+                    ':session_id' => $sessionId,
+                    ':student_id' => $stId,
+                ]);
             }
 
             $pdo->commit();
@@ -110,7 +93,7 @@ class AttendanceRecord
             throw $e;
         }
     }
-    // 🔹 NEW: điểm danh hôm nay cho 1 sinh viên
+
     public static function getTodayForStudent(int $studentId): ?array
     {
         $pdo = Database::getInstance();
@@ -160,26 +143,56 @@ class AttendanceRecord
         return $stmt->fetchAll();
     }
     // 🔹 Tổng số buổi vắng của từng sinh viên
-    public static function getAbsenceSummary(): array
+    public static function getAbsenceSummary(string $startDate = null, string $endDate = null): array
     {
         $pdo = Database::getInstance();
+
+        // Nếu có lọc theo ngày, join với class_sessions để lọc theo cs.session_date
+        $params = [];
+        $dateFilter = '';
+        if (!empty($startDate) && !empty($endDate)) {
+            $dateFilter = "AND cs.session_date BETWEEN :start_date AND :end_date";
+            $params[':start_date'] = $startDate;
+            $params[':end_date'] = $endDate;
+        } elseif (!empty($startDate)) {
+            $dateFilter = "AND cs.session_date >= :start_date";
+            $params[':start_date'] = $startDate;
+        } elseif (!empty($endDate)) {
+            $dateFilter = "AND cs.session_date <= :end_date";
+            $params[':end_date'] = $endDate;
+        }
 
         $sql = "SELECT st.id AS student_id, st.student_code, st.full_name,
                        COUNT(*) AS total_absent
                 FROM attendance_records ar
                 JOIN students st ON ar.student_id = st.id
-                WHERE ar.status = 'absent'
+                JOIN class_sessions cs ON ar.class_session_id = cs.id
+                WHERE ar.status = 'absent' " . $dateFilter . "
                 GROUP BY st.id, st.student_code, st.full_name
                 ORDER BY total_absent DESC, st.full_name ASC";
 
-        $stmt = $pdo->query($sql);
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
         return $stmt->fetchAll();
     }
 
     // 🔹 Chi tiết các buổi vắng của 1 sinh viên
-    public static function getAbsenceDetailForStudent(int $studentId): array
+    public static function getAbsenceDetailForStudent(int $studentId, string $startDate = null, string $endDate = null): array
     {
         $pdo = Database::getInstance();
+        $params = [':sid' => $studentId];
+        $dateFilter = '';
+        if (!empty($startDate) && !empty($endDate)) {
+            $dateFilter = "AND cs.session_date BETWEEN :start_date AND :end_date";
+            $params[':start_date'] = $startDate;
+            $params[':end_date'] = $endDate;
+        } elseif (!empty($startDate)) {
+            $dateFilter = "AND cs.session_date >= :start_date";
+            $params[':start_date'] = $startDate;
+        } elseif (!empty($endDate)) {
+            $dateFilter = "AND cs.session_date <= :end_date";
+            $params[':end_date'] = $endDate;
+        }
 
         $sql = "SELECT cs.session_date, cs.start_time, cs.end_time,
                        cs.is_makeup,
@@ -190,11 +203,11 @@ class AttendanceRecord
                 JOIN subjects s ON cs.subject_id = s.id
                 JOIN semesters sem ON cs.semester_id = sem.id
                 WHERE ar.student_id = :sid
-                  AND ar.status = 'absent'
+                  AND ar.status = 'absent' " . $dateFilter . "
                 ORDER BY cs.session_date DESC, cs.start_time DESC";
 
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([':sid' => $studentId]);
+        $stmt->execute($params);
 
         return $stmt->fetchAll();
     }

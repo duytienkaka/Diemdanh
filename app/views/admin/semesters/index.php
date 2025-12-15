@@ -31,7 +31,7 @@
             <tbody>
                 <?php foreach ($semesters as $sem): ?>
                     <tr>
-                        <td><strong><?= htmlspecialchars($sem['name']) ?></strong></td>
+                        <td><strong><?= htmlspecialchars($sem['name'] ?? '') ?></strong></td>
                         <td><?= date('d/m/Y', strtotime($sem['start_date'])) ?></td>
                         <td><?= date('d/m/Y', strtotime($sem['end_date'])) ?></td>
                         <td>

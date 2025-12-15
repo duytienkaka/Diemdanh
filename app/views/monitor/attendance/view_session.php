@@ -28,36 +28,41 @@ if ($effectiveStatus !== 'ended') {
 }
 ?>
 
-<div class="card" style="margin-bottom: 24px;">
-    <div style="padding: 20px; border-bottom: 1px solid #e5e7eb;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-            <div>
-                <p><strong>Môn:</strong> <?= htmlspecialchars($session['subject_code']) ?> - <?= htmlspecialchars($session['subject_name']) ?></p>
-                <p><strong>Học kỳ:</strong> <?= htmlspecialchars($session['semester_name']) ?></p>
+<div class="session-info-card">
+    <div class="info-grid">
+        <div class="info-item">
+            <div class="info-label"><i class="fas fa-book"></i> Môn</div>
+            <div class="info-value"><?= htmlspecialchars($session['subject_code'] ?? '') ?> - <?= htmlspecialchars($session['subject_name'] ?? '') ?></div>
+            <div class="info-sub"><?= htmlspecialchars($session['semester_name'] ?? '') ?></div>
+        </div>
+
+        <div class="info-item">
+            <div class="info-label"><i class="fas fa-calendar"></i> Ngày</div>
+            <div class="info-value"><?= date('d/m/Y', strtotime($session['session_date'])) ?></div>
+            <div class="info-sub"><?= htmlspecialchars($session['start_time'] ?? '') ?> - <?= htmlspecialchars($session['end_time'] ?? '') ?></div>
+        </div>
+
+        <div class="info-item">
+            <div class="info-label"><i class="fas fa-tag"></i> Loại</div>
+            <div class="info-value">
+                <?php if ($session['is_makeup']): ?>
+                    <span class="badge badge-warning">Buổi bù</span>
+                <?php else: ?>
+                    <span class="badge badge-muted">Buổi thường</span>
+                <?php endif; ?>
             </div>
-            <div>
-                <p><strong>Ngày:</strong> <?= date('d/m/Y', strtotime($session['session_date'])) ?></p>
-                <p><strong>Giờ:</strong> <?= htmlspecialchars($session['start_time']) ?> - <?= htmlspecialchars($session['end_time']) ?></p>
-            </div>
-            <div>
-                <p><strong>Loại:</strong> 
-                    <?php if ($session['is_makeup']): ?>
-                        <span class="badge badge-warning">Buổi bù</span>
-                    <?php else: ?>
-                        <span class="badge badge-muted">Buổi thường</span>
-                    <?php endif; ?>
-                </p>
-            </div>
-            <div>
-                <p><strong>Trạng thái:</strong> 
-                    <?php if ($effectiveStatus === 'ended'): ?>
-                        <span class="badge badge-success">Đã kết thúc</span>
-                    <?php elseif ($effectiveStatus === 'ongoing'): ?>
-                        <span class="badge badge-warning"><i class="fas fa-play"></i> Đang diễn ra</span>
-                    <?php else: ?>
-                        <span class="badge badge-warning"><i class="fas fa-calendar"></i> Sắp tới</span>
-                    <?php endif; ?>
-                </p>
+        </div>
+
+        <div class="info-item">
+            <div class="info-label"><i class="fas fa-info-circle"></i> Trạng thái</div>
+            <div class="info-value">
+                <?php if ($effectiveStatus === 'ended'): ?>
+                    <span class="badge badge-success">Đã kết thúc</span>
+                <?php elseif ($effectiveStatus === 'ongoing'): ?>
+                    <span class="badge badge-warning"><i class="fas fa-play"></i> Đang diễn ra</span>
+                <?php else: ?>
+                    <span class="badge badge-warning"><i class="fas fa-calendar"></i> Sắp tới</span>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -80,19 +85,26 @@ if ($effectiveStatus !== 'ended') {
                 </tr>
             </thead>
             <tbody>
-            <?php foreach ($attendanceList as $row): ?>
-                <tr>
-                    <td><strong><?= htmlspecialchars($row['student_code']) ?></strong></td>
-                    <td><?= htmlspecialchars($row['full_name']) ?></td>
-                    <td>
-                        <?php if ($row['status'] === 'present'): ?>
-                            <span class="badge badge-success"><i class="fas fa-check-circle"></i> Có mặt</span>
-                        <?php else: ?>
-                            <span class="badge badge-danger"><i class="fas fa-times-circle"></i> Vắng</span>
-                        <?php endif; ?>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
+                <?php foreach ($attendanceList as $row): ?>
+                    <tr>
+                        <td><strong><?= htmlspecialchars($row['student_code'] ?? '') ?></strong></td>
+                        <td><?= htmlspecialchars($row['full_name'] ?? '') ?></td>
+                        <td>
+                            <?php
+                            $st = $row['status'] ?? 'present';
+                            if ($st === 'present') {
+                                echo '<span class="badge badge-success"><i class="fas fa-check-circle"></i> Có mặt</span>';
+                            } elseif ($st === 'late') {
+                                echo '<span class="badge badge-warning"><i class="fas fa-clock"></i> Đi muộn</span>';
+                            } elseif ($st === 'truant') {
+                                echo '<span class="badge badge-danger"><i class="fas fa-user-slash"></i> Trốn tiết</span>';
+                            } else {
+                                echo '<span class="badge badge-muted"><i class="fas fa-times-circle"></i> Vắng</span>';
+                            }
+                            ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
             </tbody>
         </table>
     </div>

@@ -47,9 +47,9 @@
             <?php foreach ($records as $r): ?>
                 <tr>
                     <td><strong><?= date('d/m/Y', strtotime($r['session_date'])) ?></strong></td>
-                    <td><?= htmlspecialchars($r['start_time']) ?> - <?= htmlspecialchars($r['end_time']) ?></td>
-                    <td><?= htmlspecialchars($r['subject_code']) ?> - <?= htmlspecialchars($r['subject_name']) ?></td>
-                    <td><?= htmlspecialchars($r['semester_name']) ?></td>
+                    <td><?= htmlspecialchars($r['start_time'] ?? '') ?> - <?= htmlspecialchars($r['end_time'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($r['subject_code'] ?? '') ?> - <?= htmlspecialchars($r['subject_name'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($r['semester_name'] ?? '') ?></td>
                     <td>
                         <?php if ($r['is_makeup']): ?>
                             <span class="badge badge-warning"><i class="fas fa-sync"></i> Buổi bù</span>

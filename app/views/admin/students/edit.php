@@ -3,33 +3,33 @@
 </div>
 
 <?php if (!empty($message)): ?>
-    <div class="alert alert-success"><i class="fas fa-check-circle"></i> <?= htmlspecialchars($message) ?></div>
+    <div class="alert alert-success"><i class="fas fa-check-circle"></i> <?= htmlspecialchars($message ?? '') ?></div>
 <?php endif; ?>
 
 <?php if (!empty($errors)): ?>
     <div class="alert alert-danger">
         <div><i class="fas fa-exclamation-circle"></i> <strong>Lỗi:</strong></div>
         <?php foreach ($errors as $e): ?>
-            <p style="margin: 4px 0 0 24px;">• <?= htmlspecialchars($e) ?></p>
+            <p style="margin: 4px 0 0 24px;">• <?= htmlspecialchars($e ?? '') ?></p>
         <?php endforeach; ?>
     </div>
 <?php endif; ?>
 
 <div class="form-card">
     <div style="padding: 0 0 16px 0; border-bottom: 1px solid #e5e7eb; margin-bottom: 16px;">
-        <p><strong>Username:</strong> <code style="background: #f3f4f6; padding: 2px 6px; border-radius: 4px;"><?= htmlspecialchars($student['username']) ?></code></p>
+        <p><strong>Username:</strong> <code style="background: #f3f4f6; padding: 2px 6px; border-radius: 4px;"><?= htmlspecialchars($student['username'] ?? '') ?></code></p>
     </div>
 
     <form method="post" action="">
         <div class="form-row">
             <div class="form-group">
                 <label>MSSV</label>
-                <input type="text" name="student_code" value="<?= htmlspecialchars($student['student_code']) ?>" required>
+                <input type="text" name="student_code" value="<?= htmlspecialchars($student['student_code'] ?? '') ?>" required>
             </div>
 
             <div class="form-group">
                 <label>Họ tên</label>
-                <input type="text" name="full_name" value="<?= htmlspecialchars($student['full_name']) ?>" required>
+                <input type="text" name="full_name" value="<?= htmlspecialchars($student['full_name'] ?? '') ?>" required>
             </div>
         </div>
 
@@ -46,7 +46,7 @@
 
             <div class="form-group">
                 <label>Điện thoại</label>
-                <input type="text" name="phone" value="<?= htmlspecialchars($student['phone']) ?>">
+                <input type="text" name="phone" value="<?= htmlspecialchars($student['phone'] ?? '') ?>">
             </div>
         </div>
 

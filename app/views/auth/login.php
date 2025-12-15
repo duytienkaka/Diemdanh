@@ -58,7 +58,7 @@
                         <i class="fas fa-exclamation-circle" style="margin-top: 2px; flex-shrink: 0;"></i>
                         <div>
                             <?php foreach ($errors as $e): ?>
-                                <p style="margin: 4px 0; font-size: 14px;"><?= htmlspecialchars($e) ?></p>
+                                <p style="margin: 4px 0; font-size: 14px;"><?= htmlspecialchars($e ?? '') ?></p>
                             <?php endforeach; ?>
                         </div>
                     </div>

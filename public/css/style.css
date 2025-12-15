@@ -919,6 +919,88 @@ tbody tr:nth-child(even) {
     gap: 6px;
 }
 
+.info-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+/* Attendance segmented controls (icons + short labels) */
+.attendance-options {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.attendance-segmented { display: flex; align-items: center; gap: 8px; }
+
+/* Make segmented buttons equal width */
+.attendance-segmented .attendance-option {
+    flex: 1 1 0;
+    display: block;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    background: transparent;
+    cursor: pointer;
+    transition: transform .08s ease, box-shadow .12s ease;
+    min-width: 48px;
+    max-width: 160px;
+}
+
+.attendance-segmented .attendance-option .ao-inner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 6px;
+    color: #374151;
+    font-weight: 600;
+    width: 100%;
+    justify-content: center;
+}
+
+@media (max-width: 599px) {
+    .attendance-segmented .attendance-option { max-width: none; }
+    .attendance-segmented .attendance-option .ao-inner { padding: 6px 8px; }
+}
+
+.attendance-option .ao-inner i { font-size: 14px; width: 18px; text-align: center; }
+.attendance-option .ao-inner small { font-size: 12px; margin-left: -2px; }
+
+.attendance-option input[type="radio"] { display: none; }
+
+.attendance-option input[type="radio"]:checked + .ao-inner { color: #fff; box-shadow: 0 6px 18px rgba(16,24,40,0.10); transform: translateY(-2px); }
+.attendance-option input[type="radio"][value="present"]:checked + .ao-inner { background: #10b981; border-color:#10b981; }
+.attendance-option input[type="radio"][value="late"]:checked + .ao-inner    { background: #f59e0b; border-color:#f59e0b; }
+.attendance-option input[type="radio"][value="truant"]:checked + .ao-inner  { background: #ef4444; border-color:#ef4444; }
+.attendance-option input[type="radio"][value="absent"]:checked + .ao-inner  { background: #6b7280; border-color:#6b7280; }
+
+.attendance-option:hover .ao-inner { transform: translateY(-2px); }
+.attendance-option:focus-within .ao-inner { outline: 3px solid rgba(102,126,234,0.12); outline-offset: 2px; }
+
+@media (max-width: 599px) {
+    .attendance-option .ao-inner { padding:6px 8px; font-size:13px; }
+    .attendance-options { gap:6px; }
+}
+
+.session-actions { margin-top: 20px; display: flex; gap: 12px; }
+.session-actions .btn { flex: 1; }
+
+/* Column helpers for tables */
+.col-status { width: 160px; text-align: center; vertical-align: middle; }
+.col-student { width: 110px; }
+
+/* Make attendance options centered inside the status column */
+.col-status .attendance-options { justify-content: center; }
+
+@media (max-width: 700px) {
+    .col-status { width: auto; }
+    table thead th, table tbody td { padding: 10px 8px; }
+}
+
+
+
 .info-label i {
     color: #667eea;
     font-size: 14px;
@@ -1178,6 +1260,53 @@ tbody tr:nth-child(even) {
     color: #1f2937;
 }
 
+.overview-item .overview-icon {
+    width: 44px;
+    height: 44px;
+    line-height: 44px;
+    border-radius: 50%;
+    margin: 0 auto 10px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.overview-item.students .overview-icon { background: linear-gradient(135deg,#60a5fa 0%,#3b82f6 100%);} /* blue */
+.overview-item.absences .overview-icon { background: linear-gradient(135deg,#fb923c 0%,#f97316 100%);} /* orange */
+.overview-item.max-absent .overview-icon { background: linear-gradient(135deg,#f43f5e 0%,#ef4444 100%);} /* red */
+
+.overview-item .overview-meta {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+/* Slightly larger and bolder labels for clarity */
+.overview-item .overview-label { font-size: 13px; font-weight:600; color:#374151; margin-bottom:6px; }
+
+/* Responsive tweak: make icons and value align horizontally on wider screens */
+@media (min-width: 720px) {
+    .stats-overview { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ========== FILTER BUTTONS ========== */
+.filter-actions { display:flex; gap:8px; align-items:center; }
+.filter-actions .btn { display:inline-flex; gap:8px; align-items:center; padding:8px 12px; border-radius:999px; font-weight:600; font-size:13px; cursor:pointer; border:1px solid transparent; transition: all .14s ease; }
+.btn-primary { background: var(--edu-primary); color: white; box-shadow: 0 6px 18px rgba(102,126,234,0.12); }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(102,126,234,0.16); }
+.btn-ghost { background: transparent; color: #374151; border:1px solid rgba(15,23,42,0.06); }
+.btn-ghost:hover { background: rgba(15,23,42,0.03); transform: translateY(-1px); }
+.btn-danger { background: linear-gradient(135deg,#ff7b7b 0%,#ff5252 100%); color:white; }
+.btn .fa { font-size:14px; opacity:0.95; }
+
+/* Make buttons match input height on desktop */
+@media (min-width:720px) {
+    .filter-actions .btn { height:42px; }
+    form[method="get"] input[type="date"] { height:42px; padding:8px 12px; }
+}
+
 /* ========== ABSENCE STATS ========== */
 .absence-stats {
     display: grid;
@@ -1306,6 +1435,55 @@ tbody tr:nth-child(even) {
     background: #fef3c7;
     color: #92400e;
 }
+
+/* ========== RESPONSIVE: TABLET & MOBILE ========== */
+@media (max-width: 899px) {
+    .container { padding-left: 12px; padding-right: 12px; }
+    .topbar { height: 56px; padding: 0 12px; }
+    .topbar-title { font-size: 16px; }
+    .page-header h1 { font-size: 20px; gap: 8px; }
+    .page-header h1 i { font-size: 18px; }
+    .page-description { font-size: 13px; }
+
+    /* Stack stats and simplify spacing */
+    .stats-overview { grid-template-columns: 1fr; gap: 12px; }
+
+    /* Forms/layout */
+    .form-row { grid-template-columns: 1fr; }
+    .form-card, .card { padding: 14px; }
+
+    /* Session info layout */
+    .session-info-card .info-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+
+    /* Tables: allow horizontal scroll and reduce padding */
+    .table-responsive { -webkit-overflow-scrolling: touch; overflow-x: auto; }
+    table thead th, table tbody td { padding: 8px 10px; font-size: 13px; }
+
+    /* Sidebar behavior (overlay) */
+    .sidebar { left: -320px; position: fixed; top: 0; bottom: 0; z-index: 80; }
+    body.sidebar-open .sidebar { left: 0; }
+    .topbar { z-index: 90; }
+
+    /* Buttons/forms */
+    .btn { font-size: 13px; padding: 8px 10px; }
+
+    /* Attendance segmented adjustments */
+    .attendance-segmented .attendance-option { max-width: none; }
+    .attendance-segmented .attendance-option .ao-inner { padding: 6px 6px; font-size: 13px; }
+
+    /* Page content padding */
+    .content { padding: 18px 12px; }
+}
+
+@media (max-width: 420px) {
+    .overview-value { font-size: 22px; }
+    .overview-item .overview-icon { width: 40px; height: 40px; font-size: 16px; }
+    /* Make segmented controls icon-only on very small screens */
+    .attendance-segmented .attendance-option .ao-inner small { display: none; }
+    .attendance-segmented .attendance-option .ao-inner { gap: 6px; padding: 6px 6px; }
+    .col-student { display:none; } /* hide MSSV column to save space on tiny screens */
+}
+
 
 .badge-muted {
     background: #f3f4f6;

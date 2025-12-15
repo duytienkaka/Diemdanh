@@ -15,12 +15,12 @@
     <div class="attendance-card">
         <div class="attendance-header">
             <div class="attendance-title">
-                <h2><?= htmlspecialchars($record['subject_code']) ?> - <?= htmlspecialchars($record['subject_name']) ?></h2>
+                <h2><?= htmlspecialchars($record['subject_code'] ?? '') ?> - <?= htmlspecialchars($record['subject_name'] ?? '') ?></h2>
                 <p class="attendance-date" style="font-size: 14px; color: #6b7280; margin-top: 4px;">
                     <i class="fas fa-calendar"></i>
                     <?= date('d/m/Y', strtotime($record['session_date'])) ?>
                     <span style="margin-left: 16px;"><i class="fas fa-clock"></i>
-                    <?= htmlspecialchars($record['start_time']) ?> - <?= htmlspecialchars($record['end_time']) ?></span>
+                    <?= htmlspecialchars($record['start_time'] ?? '') ?> - <?= htmlspecialchars($record['end_time'] ?? '') ?></span>
                 </p>
             </div>
             <div class="attendance-status">
@@ -40,7 +40,7 @@
             <div class="info-row">
                 <div class="info-col">
                     <div class="info-label"><i class="fas fa-layer-group"></i> Học kỳ</div>
-                    <div class="info-value"><?= htmlspecialchars($record['semester_name']) ?></div>
+                    <div class="info-value"><?= htmlspecialchars($record['semester_name'] ?? '') ?></div>
                 </div>
                 <div class="info-col">
                     <div class="info-label"><i class="fas fa-tag"></i> Trạng thái buổi học</div>

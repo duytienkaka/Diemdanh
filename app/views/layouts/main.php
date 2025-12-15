@@ -20,9 +20,10 @@ function nav_active($controller, $action = null)
     <meta charset="UTF-8">
     <title>Attendance App</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="<?= BASE_URL ?>public/css/theme-edu.css?v=<?= time() % 100000 ?>"
+    <link rel="stylesheet" href="<?= BASE_URL ?>public/css/theme-edu.css?v=<?= time() % 100000 ?>">
+    <link rel="stylesheet" href="<?= BASE_URL ?>public/css/style.css?v=<?= time() % 100000 ?>">
 </head>
-<body class="role-<?= htmlspecialchars($role) ?>">
+<body class="role-<?= htmlspecialchars($role ?? '') ?>">
 
 <a href="#main-content" class="sr-only">Bỏ qua sang nội dung</a>
 
@@ -127,7 +128,7 @@ function nav_active($controller, $action = null)
             </div>
             <div class="topbar-user">
                 <span class="user-name">
-                    <i class="fas fa-user-circle"></i> <?= htmlspecialchars($username) ?>
+                    <i class="fas fa-user-circle"></i> <?= htmlspecialchars($username ?? '') ?>
                 </span>
                 <?php if ($role !== 'guest'): ?>
                     <a href="<?= BASE_URL ?>index.php?controller=auth&action=logout" class="btn btn-danger btn-logout">

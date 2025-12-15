@@ -28,10 +28,10 @@
                 <?php foreach ($subjects as $s): ?>
                     <tr>
                         <td><?= $s['id'] ?></td>
-                        <td><?= htmlspecialchars($s['code']) ?></td>
-                        <td><?= htmlspecialchars($s['name']) ?></td>
+                        <td><?= htmlspecialchars($s['code'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($s['name'] ?? '') ?></td>
                         <td><?= htmlspecialchars($s['semester_name'] ?? '') ?></td>
-                        <td><?= htmlspecialchars($s['description']) ?></td>
+                        <td><?= htmlspecialchars($s['description'] ?? '') ?></td>
                         <td>
                             <?php if ($s['is_active']): ?>
                                 <span class="badge badge-success">Đang dùng</span>

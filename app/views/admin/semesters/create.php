@@ -3,13 +3,13 @@
 </div>
 
 <?php if (!empty($message)): ?>
-    <div class="alert alert-success"><i class="fas fa-check-circle"></i> <?= htmlspecialchars($message) ?></div>
+    <div class="alert alert-success"><i class="fas fa-check-circle"></i> <?= htmlspecialchars($message ?? '') ?></div>
 <?php endif; ?>
 
 <?php if (!empty($errors)): ?>
     <div class="alert alert-danger">
         <div><i class="fas fa-exclamation-circle"></i> <strong>Lỗi:</strong></div>
-        <?php foreach ($errors as $e): ?><p style="margin: 4px 0 0 24px;">• <?= htmlspecialchars($e) ?></p><?php endforeach; ?>
+        <?php foreach ($errors as $e): ?><p style="margin: 4px 0 0 24px;">• <?= htmlspecialchars($e ?? '') ?></p><?php endforeach; ?>
     </div>
 <?php endif; ?>
 

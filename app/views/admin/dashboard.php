@@ -134,7 +134,7 @@
                     <tbody>
                     <?php foreach ($todaySessions as $session): ?>
                         <tr>
-                            <td><strong><?= htmlspecialchars($session['start_time']) ?> - <?= htmlspecialchars($session['end_time']) ?></strong></td>
+                            <td><strong><?= htmlspecialchars($session['start_time'] ?? '') ?> - <?= htmlspecialchars($session['end_time'] ?? '') ?></strong></td>
                             <td><?= htmlspecialchars($session['subject_code'] ?? '-') ?> - <?= htmlspecialchars($session['subject_name'] ?? '-') ?></td>
                             <td><?= htmlspecialchars($session['room'] ?? 'Không xác định') ?></td>
                             <td>
