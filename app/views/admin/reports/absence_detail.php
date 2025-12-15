@@ -24,7 +24,13 @@
     </div>
 </div>
 
-<?php if (!empty($start_date) || !empty($end_date)): ?>
+<?php
+    $today = date('Y-m-d');
+    if (($start_date ?? '') === $today && ($end_date ?? '') === $today): ?>
+    <div style="margin-bottom:12px; color:#374151; font-size:13px;">
+        Hiện: <strong>Hôm nay</strong>
+    </div>
+<?php elseif (!empty($start_date) || !empty($end_date)): ?>
     <div style="margin-bottom:12px; color:#374151; font-size:13px;">
         Lọc: 
         <?php if (!empty($start_date)): ?>Từ <strong><?= htmlspecialchars($start_date ?? '') ?></strong><?php endif; ?>

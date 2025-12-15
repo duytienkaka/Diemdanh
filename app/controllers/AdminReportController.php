@@ -22,6 +22,13 @@ class AdminReportController extends Controller
         $startDate = $validateDate($startDate);
         $endDate = $validateDate($endDate);
 
+        // Nếu không có lọc nào (mở trang lần đầu hoặc xóa lọc), mặc định là ngày hôm nay
+        if (is_null($startDate) && is_null($endDate)) {
+            $today = date('Y-m-d');
+            $startDate = $today;
+            $endDate = $today;
+        }
+
         $summary = AttendanceRecord::getAbsenceSummary($startDate, $endDate);
 
         $this->view('admin/reports/absence_summary', [
@@ -58,6 +65,13 @@ class AdminReportController extends Controller
 
         $startDate = $validateDate($startDate);
         $endDate = $validateDate($endDate);
+
+        // Nếu không có lọc nào (mở trang chi tiết lần đầu hoặc xóa lọc), mặc định là ngày hôm nay
+        if (is_null($startDate) && is_null($endDate)) {
+            $today = date('Y-m-d');
+            $startDate = $today;
+            $endDate = $today;
+        }
 
         $records = AttendanceRecord::getAbsenceDetailForStudent($studentId, $startDate, $endDate);
 
